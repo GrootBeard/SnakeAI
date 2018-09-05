@@ -1,3 +1,5 @@
-.jpg
+assets/ball.jpg
 car.png
 spalding.png
+*.pyc
+__init__.py
