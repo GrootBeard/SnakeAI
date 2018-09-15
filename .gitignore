@@ -4,4 +4,4 @@ spalding.png
 *.pyc
 __init__.py
 .idea/*
-.idea/
+.idea
