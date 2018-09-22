@@ -1,7 +1,7 @@
 import numpy as np
 import pickle
 
-import NeuralNetwork
+import neural_network
 
 
 class AutonomousSnake:
@@ -59,7 +59,7 @@ class AutonomousSnake:
             self.eat()
 
         self.see()
-        print self.vision
+        print(self.vision)
 
     def eat(self):
         self.food = self.place_food()
