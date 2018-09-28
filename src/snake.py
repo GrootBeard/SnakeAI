@@ -134,7 +134,7 @@ class AutonomousSnake:
                 "score": score,
                 "brain": brain_data}
 
-        pickle_out = open("generation {0}/{1}.pickle".format(generation, snake_id), "wb")
+        pickle_out = open("generation {}/{}.pickle".format(generation, snake_id), "wb")
         pickle.dump(data, pickle_out)
         pickle_out.close()
 
