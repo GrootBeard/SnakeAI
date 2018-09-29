@@ -6,3 +6,5 @@ __init__.py
 .idea/*
 .idea
 .vscode
+/generations
+*.pickle

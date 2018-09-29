@@ -25,9 +25,9 @@ class Snek:
 
         self.growCnt = 0
 
-        self.bodyImg = pygame.image.load("../assets/snekpart.png")
-        self.headImg = pygame.image.load("../assets/snekhead.png")
-        self.foodImg = pygame.image.load("../assets/snekfood.png")
+        self.bodyImg = pygame.image.load("assets/snekpart.png")
+        self.headImg = pygame.image.load("assets/snekhead.png")
+        self.foodImg = pygame.image.load("assets/snekfood.png")
 
         self.lastMoveDir = np.array(self.velocity)
         self.food = self.place_food()
