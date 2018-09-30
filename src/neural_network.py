@@ -65,3 +65,9 @@ class Network:
         # self.biases = [
         #     b + 0.01 * np.random.normal(size=np.shape(b)) * np.random.choice([0, 1], np.shape(b), p=[1-rate, rate])
         #     for b in self.biases]
+
+    def __copy__(self):
+        brain_copy = Network(self.sizes)
+        brain_copy.weights = [w for w in self.weights]
+        brain_copy.biases = [b for b in self.weights]
+        return brain_copy

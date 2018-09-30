@@ -2,6 +2,7 @@ import numpy as np
 import pickle
 import os
 import math
+import copy
 
 from neural_network import Network
 
@@ -203,6 +204,6 @@ class AutonomousSnake:
         return snake
 
     def __copy__(self):
-        copy = AutonomousSnake()
-        copy.brain = self.brain
-        return copy
+        snake_copy = AutonomousSnake()
+        snake_copy.brain = copy.copy(self.brain)
+        return snake_copy
