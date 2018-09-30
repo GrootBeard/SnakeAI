@@ -48,10 +48,10 @@ class Network:
         pickle.dump(data, pickle_out)
         pickle_out.close()
 
-    def crossover(self, other, rate):
+    def crossover(self, other):
         result = copy.copy(self)
         for i in range(len(self.weights)):
-            split = np.random.uniform(0, 0.2)
+            split = np.random.uniform(0, 1)
             mask = np.random.choice([0, 1], np.shape(self.weights[i]), p=[split, 1-split])
             mask_complement = np.ones(np.shape(self.weights[i])) - mask
             new_weights = mask * self.weights[i] + mask_complement * other.weights[i]

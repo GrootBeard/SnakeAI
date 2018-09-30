@@ -11,8 +11,8 @@ class AutonomousSnake:
                   4: np.array([0, 1]), 5: np.array([-1, 1]), 6: np.array([-1, 0]), 7: np.array([-1, -1])}
 
     def __init__(self, pos=[13, 13], length=5, base_max_moves=100, field_width=25, field_height=25):
-        self.fieldWidth = field_width
-        self.fieldHeight = field_height
+        self.field_width = field_width
+        self.field_height = field_height
         self.position = np.array([pos[0], pos[1]])
         self.velocity = self.directions[np.random.choice([0, 2, 4, 6])]
         self.length = length
@@ -22,7 +22,7 @@ class AutonomousSnake:
 
         self.tail = np.empty(shape=[0, 2])
         for i in range(self.length - 1, 0, -1):
-            self.tail = np.append(self.tail, [self.position-i*self.velocity], axis=0)
+            self.tail = np.append(self.tail, [self.position - i * self.velocity], axis=0)
 
         self.alive = True
         self.time_alive = 0
@@ -41,8 +41,11 @@ class AutonomousSnake:
     def think(self):
         self.see()
         decision = self.brain.feed_forward(self.vision.reshape((24, 1)))
-        decision_arg = np.argmax(decision)
-        self.velocity = self.directions[decision_arg * 2]  # if not np.array_equal(self.velocity, -self.directions[
+        # decision_arg = np.argmax(decision)
+        chosen_direction = self.directions[np.argmax(decision) * 2]
+        if not np.array_equal(chosen_direction, -self.velocity):
+            self.velocity = chosen_direction
+        # self.velocity = self.directions[decision_arg * 2]  # if not np.array_equal(self.velocity, -self.directions[
         #     decision_arg * 2]) else self.velocity
 
     def move(self):
@@ -79,9 +82,9 @@ class AutonomousSnake:
         self.moves_left = self.max_moves
 
     def place_food(self):
-        pos = np.array([np.random.randint(0, self.fieldWidth), np.random.randint(0, self.fieldHeight)])
+        pos = np.array([np.random.randint(0, self.field_width), np.random.randint(0, self.field_height)])
         while self.occupied(pos):
-            pos = np.array([np.random.randint(0, self.fieldWidth), np.random.randint(0, self.fieldHeight)])
+            pos = np.array([np.random.randint(0, self.field_width), np.random.randint(0, self.field_height)])
 
         return pos
 
@@ -102,8 +105,8 @@ class AutonomousSnake:
         next_position = self.position + self.velocity
         if self.is_on_tail(next_position):
             return True
-        return (next_position[0] < 0 or next_position[0] >= self.fieldWidth or next_position[1] < 0 or next_position[
-            1] >= self.fieldHeight)
+        return (next_position[0] < 0 or next_position[0] >= self.field_width or next_position[1] < 0 or next_position[
+            1] >= self.field_height)
 
     def is_on_tail(self, pos):
         for cell in self.tail:
@@ -127,7 +130,8 @@ class AutonomousSnake:
 
         distance = 1.0
 
-        while not (cur_pos[0] < 0 or cur_pos[0] >= self.fieldWidth or cur_pos[1] < 0 or cur_pos[1] >= self.fieldHeight):
+        while not (
+                cur_pos[0] < 0 or cur_pos[0] >= self.field_width or cur_pos[1] < 0 or cur_pos[1] >= self.field_height):
             if not food_found and np.array_equal(self.food, cur_pos):
                 vision[0] = 1.0
                 food_found = True
@@ -143,27 +147,27 @@ class AutonomousSnake:
 
         return vision
 
-    def crossover_brain(self, other, rate):
+    def crossover_brain(self, other):
         new_snake = AutonomousSnake()
         if self.fitness > other.fitness:
-            new_snake.brain = self.brain.crossover(other.brain, rate)
+            new_snake.brain = self.brain.crossover(other.brain)
         else:
-            new_snake.brain = other.brain.crossover(self.brain, rate)
+            new_snake.brain = other.brain.crossover(self.brain)
         return new_snake
 
     def mutate(self, rate):
         self.brain.mutate(rate)
 
     def reincarnate(self):
-        self.position = np.array((13, 8))
-        self.velocity = np.array((0, 1))
+        self.position = np.array((13, 13))
+        self.velocity = self.directions[np.random.choice([0, 2, 4, 6])]
         self.length = 5
         self.alive = True
         self.time_alive = 0
         self.grow_count = 0
         self.tail = np.empty(shape=[0, 2])
         for i in range(self.length - 1, 0, -1):
-            self.tail = np.append(self.tail, [[self.position[0], self.position[1] - i]], axis=0)
+            self.tail = np.append(self.tail, [self.position - i * self.velocity], axis=0)
         return self
 
     def save(self, generation):

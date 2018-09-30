@@ -1,4 +1,5 @@
 from snake import AutonomousSnake
+import copy
 import random
 import numpy as np
 
@@ -7,7 +8,12 @@ class Population:
 
     def __init__(self, population_size, champion=None, mutation_rate=0, crossover_rate=0):
         self.population_size = population_size
-        self.individuals = [AutonomousSnake() for i in range(self.population_size)]
+
+        if not champion:
+            self.individuals = [AutonomousSnake() for i in range(self.population_size)]
+        else:
+            self.individuals = [copy.copy(champion).mutate(mutation_rate) for i in range(self.population_size)]
+
         self.global_champion = AutonomousSnake()
         self.fitness_sum = 0
         self.generation = 0
@@ -54,7 +60,7 @@ class Population:
             parent1 = self.select_random_individual(individuals_pool)
             parent2 = self.select_random_individual(individuals_pool)
 
-            child = parent1.crossover_brain(parent2, self.crossover_rate)
+            child = parent1.crossover_brain(parent2)
             child.mutate(self.mutation_rate)
 
             next_gen.append(child)
@@ -64,11 +70,11 @@ class Population:
 
     def select_random_individual(self, individuals_pool):
         random_point = np.random.randint(0, self.fitness_sum)
-        random.shuffle(individuals_pool)
+        # random.shuffle(individuals_pool)
 
         pointer = 0
         for individual in individuals_pool:
             pointer += individual.fitness
             if pointer > random_point:
                 return individual
-        return self.individuals[0]
+        return self.global_champion

@@ -124,6 +124,8 @@ class Snek:
             distance += 1.0
 
         vision[2] = 1.0 / distance
+        if distance == 1.0:
+            print("VERY CLOSE")
 
         return vision
 
