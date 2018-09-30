@@ -10,14 +10,12 @@ class AutonomousSnake:
     directions = {0: np.array([0, -1]), 1: np.array([1, -1]), 2: np.array([1, 0]), 3: np.array([1, 1]),
                   4: np.array([0, 1]), 5: np.array([-1, 1]), 6: np.array([-1, 0]), 7: np.array([-1, -1])}
 
-    def __init__(self, pos, sid=-1, length=5, base_max_moves=100, field_width=25, field_height=18):
+    def __init__(self, pos=[13,8], length=5, base_max_moves=100, field_width=25, field_height=18):
         self.fieldWidth = field_width
         self.fieldHeight = field_height
         self.position = np.array([pos[0], pos[1]])
         self.velocity = np.array((0, 1))
         self.length = length
-
-        self.sid = sid
 
         self.brain = Network([24, 18, 4])
 
@@ -37,7 +35,7 @@ class AutonomousSnake:
         self.food = self.place_food()
 
         self.vision = np.zeros(24)
-
+        self.fitness = 0
 
     def think(self):
         self.see()
@@ -75,7 +73,6 @@ class AutonomousSnake:
     def eat(self):
         self.food = self.place_food()
         self.grow_count += 1
-        self.score += self.eat_score
         self.moves_left = self.max_moves
 
     def place_food(self):
@@ -87,9 +84,9 @@ class AutonomousSnake:
 
     def calc_fitness(self):
         if self.length < 10:
-            return math.floor(self.time_alive**2 * 2**self.length)
+            self.fitness = math.floor(self.time_alive**2 * 2**self.length)
         else:
-            return self.time_alive**2 * 2**10 * (self.length - 9)
+            self.fitness = self.time_alive**2 * 2**10 * (self.length - 9)
 
     # Check if the position is occupied by the body of the snake
     def occupied(self, pos):
@@ -143,20 +140,41 @@ class AutonomousSnake:
 
         return vision
 
+    def crossover_brain(self, other, rate):
+        new_snake = AutonomousSnake()
+        new_snake.brain = self.brain.crossover(other.brain, rate)
+        return new_snake
+
+    def mutate(self, rate):
+        self.brain.mutate(rate)
+
+    def reincarnate(self):
+        self.position = np.array((13, 8))
+        self.velocity = np.array((0, 1))
+        self.length = 5
+        self.alive = True
+        self.time_alive = 0
+        self.grow_count = 0
+        self.tail = np.empty(shape=[0, 2])
+        for i in range(self.length - 1, 0, -1):
+            self.tail = np.append(self.tail, [[self.position[0], self.position[1] - i]], axis=0)
+        return self
+
     def save(self, generation):
         brain_data = {"sizes": self.brain.sizes,
                       "weights": self.brain.weights,
                       "biases": self.brain.biases}
 
         data = {"generation": generation,
-                "id": self.sid,
-                "score": self.score,
+                # "id": self.sid,
+                "fitness": self.fitness,
                 "brain": brain_data}
-        try:
-            pickle_out = open("generations/gen{}/{}.pickle".format(generation, self.sid), "wb")
-        except Exception:
-            os.mkdir("generations/gen{}".format(generation))
-            pickle_out = open("generations/gen{}/{}.pickle".format(generation, self.sid), "wb")
+        # try:
+        #     pickle_out = open("champions/gen{}.pickle".format(generation, self.sid), "wb")
+        # except Exception:
+        #     os.mkdir("champions/gen{}".format(generation))
+        #     pickle_out = open("generations/gen{}/{}.pickle".format(generation, self.sid), "wb")
+        pickle_out = open("champions/gen{}.pickle".format(generation), "wb")
         pickle.dump(data, pickle_out)
         pickle_out.close()
 
@@ -169,6 +187,6 @@ class AutonomousSnake:
         brain.weights = [np.array(w) for w in data["brain"]["weights"]]
         brain.biases = [np.array(b) for b in data["brain"]["biases"]]
 
-        snake = AutonomousSnake([13, 8], data["id"])
+        snake = AutonomousSnake([13, 8])
         snake.brain = brain
         return snake

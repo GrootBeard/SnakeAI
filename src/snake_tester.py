@@ -1,4 +1,4 @@
-from generation import Generation
+# from generation import Generation
 from snake import AutonomousSnake
 import pygame
 
@@ -54,6 +54,6 @@ def play(_snake):
     pygame.quit()
 
 
-snake = AutonomousSnake.load_snake("generations/gen6/112.pickle")
+snake = AutonomousSnake.load_snake("champions/gen8.pickle")
 print(snake.moves_left)
 play(snake)

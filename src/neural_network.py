@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+import copy
 
 
 def sigmoid(z):
@@ -35,11 +36,7 @@ class Network:
 
     def feed_forward(self, a):
         for b, w in zip(self.biases, self.weights):
-            # print("shape w: {}, shape a: {}".format(np.shape(w), np.shape(a)))
-            # print("shape dot(w,a): {}, shape b: {}, shape of sum: {}".format(np.shape(np.dot(w, a)), np.shape(b),
-            #                                                                  np.shape(np.dot(w, a) + b)))
             a = sigmoid(np.dot(w, a) + b)
-            # print("a: {}".format(a))
         return a
 
     def save_net(self, file_name):
@@ -50,5 +47,21 @@ class Network:
         pickle.dump(data, pickle_out)
         pickle_out.close()
 
-    def crossover(self, other):
-        return self
+    def crossover(self, other, rate):
+        result = copy.copy(self)
+        for i in range(len(self.weights)):
+            split = np.random.uniform()
+            mask = np.random.choice([0, 1], np.shape(self.weights[i]), p=[1-split, split])
+            mask_complement = np.ones(np.shape(self.weights[i])) - mask
+            new_weights = mask * self.weights[i] + mask_complement * other.weights[i]
+            result.weights[i] = new_weights
+        return result
+
+    def mutate(self, rate):
+        # print(np.shape(np.random.normal(size=np.shape(self.weights[0]))), ", ", np.shape(np.random.choice([0,1], np.shape(self.weights[0]))))
+        self.weights = [
+            w + 0.2 * np.random.normal(size=np.shape(w)) * np.random.choice([0, 1], (np.shape(w)), p=[1-rate, rate])
+            for w in self.weights]
+        self.biases = [
+            b + 0.2 * np.random.normal(size=np.shape(b)) * np.random.choice([0, 1], np.shape(b), p=[1-rate, rate])
+            for b in self.biases]
