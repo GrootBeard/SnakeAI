@@ -11,6 +11,7 @@ class TrainingConfiguration:
         self.mutation_rate = mutation_rate
         self.mutation_magnitude = mutation_magnitude
 
+
 class Population:
 
     def __init__(self, population_size, pid, training_config, champion=None):
@@ -56,9 +57,11 @@ class Population:
         self.reproduction()
 
         self.all_time_champion.save(self.pid, self.generation)
-        print("Generation {} done in {} steps. champion fitness: {}, total fitness: {}".format(self.generation, steps,
-                                                                                               self.all_time_champion.fitness,
-                                                                                               self.fitness_sum))
+        print("Population {}: Generation {} done in {} steps. champion fitness: {}, total fitness: {}".format(self.pid,
+                                                                                                              self.generation,
+                                                                                                              steps,
+                                                                                                              self.all_time_champion.fitness,
+                                                                                                              self.fitness_sum))
         self.generation += 1
 
     def reproduction(self):
@@ -91,7 +94,6 @@ class Population:
             if pointer > random_point:
                 return individual
         return self.all_time_champion
-
 
     def introduce_from_outside(self, others):
         merged_population = []

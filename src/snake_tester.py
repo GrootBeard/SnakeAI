@@ -44,7 +44,7 @@ def play(_snake):
 
         pygame.display.update()
 
-        if last_time >= 80 and not paused:
+        if last_time >= 40 and not paused:
             _snake.think()
             _snake.move()
             last_time = 0
@@ -60,7 +60,7 @@ def play(_snake):
     pygame.quit()
 
 
-snake = AutonomousSnake.load_snake("champions/gen{}.pickle".format(sys.argv[1]))
+snake = AutonomousSnake.load_snake("populations/pop{}/gen{}.pickle".format(sys.argv[1], sys.argv[2]))
 # print(snake.moves_left)
 print(snake.velocity)
 play(snake)
