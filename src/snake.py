@@ -156,8 +156,8 @@ class AutonomousSnake:
             new_snake.brain = other.brain.crossover(self.brain)
         return new_snake
 
-    def mutate(self, rate):
-        self.brain.mutate(rate)
+    def mutate(self, rate, mag):
+        self.brain.mutate(rate, mag)
 
     def reincarnate(self):
         self.position = np.array((13, 13))

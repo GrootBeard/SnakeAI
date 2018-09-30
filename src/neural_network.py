@@ -58,9 +58,9 @@ class Network:
             result.weights[i] = new_weights
         return result
 
-    def mutate(self, rate):
+    def mutate(self, rate, mag):
         self.weights = [
-            w + np.random.normal(size=np.shape(w)) * np.random.choice([0, 1], (np.shape(w)), p=[1-rate, rate]) / 10
+            w + np.random.normal(size=np.shape(w)) * np.random.choice([0, 1], (np.shape(w)), p=[1-rate, rate]) * mag
             for w in self.weights]
         # self.biases = [
         #     b + 0.01 * np.random.normal(size=np.shape(b)) * np.random.choice([0, 1], np.shape(b), p=[1-rate, rate])
@@ -69,5 +69,5 @@ class Network:
     def __copy__(self):
         brain_copy = Network(self.sizes)
         brain_copy.weights = [w for w in self.weights]
-        brain_copy.biases = [b for b in self.weights]
+        brain_copy.biases = [b for b in self.biases]
         return brain_copy
