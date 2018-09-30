@@ -170,7 +170,7 @@ class AutonomousSnake:
             self.tail = np.append(self.tail, [self.position - i * self.velocity], axis=0)
         return self
 
-    def save(self, generation):
+    def save(self, population, generation):
         brain_data = {"sizes": self.brain.sizes,
                       "weights": self.brain.weights,
                       "biases": self.brain.biases}
@@ -179,12 +179,12 @@ class AutonomousSnake:
                 # "id": self.sid,
                 "fitness": self.fitness,
                 "brain": brain_data}
-        # try:
-        #     pickle_out = open("champions/gen{}.pickle".format(generation, self.sid), "wb")
-        # except Exception:
-        #     os.mkdir("champions/gen{}".format(generation))
-        #     pickle_out = open("generations/gen{}/{}.pickle".format(generation, self.sid), "wb")
-        pickle_out = open("champions/gen{}.pickle".format(generation), "wb")
+        try:
+            pickle_out = open("populations/pop{}/gen{}.pickle".format(population, generation), "wb")
+        except Exception:
+            os.mkdir("populations/pop{}".format(population))
+            pickle_out = open("populations/pop{}/gen{}.pickle".format(population, generation), "wb")
+        pickle_out = open("populations/pop{}/gen{}.pickle".format(population, generation), "wb")
         pickle.dump(data, pickle_out)
         pickle_out.close()
 
@@ -198,5 +198,11 @@ class AutonomousSnake:
         brain.biases = [np.array(b) for b in data["brain"]["biases"]]
 
         snake = AutonomousSnake()
+        snake.fitness = data["fitness"]
         snake.brain = brain
         return snake
+
+    def __copy__(self):
+        copy = AutonomousSnake()
+        copy.brain = self.brain
+        return copy
