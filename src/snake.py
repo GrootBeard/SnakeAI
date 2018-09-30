@@ -10,18 +10,19 @@ class AutonomousSnake:
     directions = {0: np.array([0, -1]), 1: np.array([1, -1]), 2: np.array([1, 0]), 3: np.array([1, 1]),
                   4: np.array([0, 1]), 5: np.array([-1, 1]), 6: np.array([-1, 0]), 7: np.array([-1, -1])}
 
-    def __init__(self, pos=[13,8], length=5, base_max_moves=100, field_width=25, field_height=18):
+    def __init__(self, pos=[13, 13], length=5, base_max_moves=100, field_width=25, field_height=25):
         self.fieldWidth = field_width
         self.fieldHeight = field_height
         self.position = np.array([pos[0], pos[1]])
-        self.velocity = np.array((0, 1))
+        self.velocity = self.directions[np.random.choice([0, 2, 4, 6])]
         self.length = length
+        self.score = 0
 
         self.brain = Network([24, 18, 4])
 
         self.tail = np.empty(shape=[0, 2])
         for i in range(self.length - 1, 0, -1):
-            self.tail = np.append(self.tail, [[self.position[0], self.position[1] - i]], axis=0)
+            self.tail = np.append(self.tail, [self.position-i*self.velocity], axis=0)
 
         self.alive = True
         self.time_alive = 0
@@ -41,7 +42,8 @@ class AutonomousSnake:
         self.see()
         decision = self.brain.feed_forward(self.vision.reshape((24, 1)))
         decision_arg = np.argmax(decision)
-        self.velocity = self.directions[decision_arg * 2]
+        self.velocity = self.directions[decision_arg * 2]  # if not np.array_equal(self.velocity, -self.directions[
+        #     decision_arg * 2]) else self.velocity
 
     def move(self):
 
@@ -73,6 +75,7 @@ class AutonomousSnake:
     def eat(self):
         self.food = self.place_food()
         self.grow_count += 1
+        self.score += 1
         self.moves_left = self.max_moves
 
     def place_food(self):
@@ -83,10 +86,10 @@ class AutonomousSnake:
         return pos
 
     def calc_fitness(self):
-        if self.length < 10:
-            self.fitness = math.floor(self.time_alive**2 * 2**self.length)
+        if self.score < 10:
+            self.fitness = math.floor(self.time_alive ** 2 * 2 ** self.score)
         else:
-            self.fitness = self.time_alive**2 * 2**10 * (self.length - 9)
+            self.fitness = self.time_alive ** 2 * 2 ** 10 * (self.score - 9)
 
     # Check if the position is occupied by the body of the snake
     def occupied(self, pos):
@@ -142,7 +145,10 @@ class AutonomousSnake:
 
     def crossover_brain(self, other, rate):
         new_snake = AutonomousSnake()
-        new_snake.brain = self.brain.crossover(other.brain, rate)
+        if self.fitness > other.fitness:
+            new_snake.brain = self.brain.crossover(other.brain, rate)
+        else:
+            new_snake.brain = other.brain.crossover(self.brain, rate)
         return new_snake
 
     def mutate(self, rate):
@@ -187,6 +193,6 @@ class AutonomousSnake:
         brain.weights = [np.array(w) for w in data["brain"]["weights"]]
         brain.biases = [np.array(b) for b in data["brain"]["biases"]]
 
-        snake = AutonomousSnake([13, 8])
+        snake = AutonomousSnake()
         snake.brain = brain
         return snake

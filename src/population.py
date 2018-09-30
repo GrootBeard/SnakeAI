@@ -29,13 +29,18 @@ class Population:
         for individual in self.individuals:
             individual.calc_fitness()
             self.fitness_sum += individual.fitness
+
+
         self.individuals.sort(key=lambda c: c.fitness)
+        print("worst fitness: {}, best fitness: {}".format(self.individuals[0].fitness, self.individuals[-1].fitness))
+
         self.reproduction()
+
         self.global_champion.save(self.generation)
-        self.generation += 1
         print("Generation {} done in {} steps. champion fitness: {}, total fitness: {}".format(self.generation, steps,
                                                                                                self.global_champion.fitness,
                                                                                                self.fitness_sum))
+        self.generation += 1
 
     def reproduction(self):
         next_gen = []

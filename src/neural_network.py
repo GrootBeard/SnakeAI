@@ -30,8 +30,9 @@ class Network:
         return biases, weights
 
     def large_weight_initializer(self):
-        biases = [np.random.randn(y, 1) for y in self.sizes[1:]]
+        # biases = [np.random.randn(y, 1) for y in self.sizes[1:]]
         weights = [np.random.randn(y, x) for x, y in zip(self.sizes[:-1], self.sizes[1:])]
+        biases = [np.ones((y, 1)) for y in self.sizes[1:]]
         return biases, weights
 
     def feed_forward(self, a):
@@ -50,18 +51,17 @@ class Network:
     def crossover(self, other, rate):
         result = copy.copy(self)
         for i in range(len(self.weights)):
-            split = np.random.uniform()
-            mask = np.random.choice([0, 1], np.shape(self.weights[i]), p=[1-split, split])
+            split = np.random.uniform(0, 0.2)
+            mask = np.random.choice([0, 1], np.shape(self.weights[i]), p=[split, 1-split])
             mask_complement = np.ones(np.shape(self.weights[i])) - mask
             new_weights = mask * self.weights[i] + mask_complement * other.weights[i]
             result.weights[i] = new_weights
         return result
 
     def mutate(self, rate):
-        # print(np.shape(np.random.normal(size=np.shape(self.weights[0]))), ", ", np.shape(np.random.choice([0,1], np.shape(self.weights[0]))))
         self.weights = [
-            w + 0.2 * np.random.normal(size=np.shape(w)) * np.random.choice([0, 1], (np.shape(w)), p=[1-rate, rate])
+            w + np.random.normal(size=np.shape(w)) * np.random.choice([0, 1], (np.shape(w)), p=[1-rate, rate]) / 10
             for w in self.weights]
-        self.biases = [
-            b + 0.2 * np.random.normal(size=np.shape(b)) * np.random.choice([0, 1], np.shape(b), p=[1-rate, rate])
-            for b in self.biases]
+        # self.biases = [
+        #     b + 0.01 * np.random.normal(size=np.shape(b)) * np.random.choice([0, 1], np.shape(b), p=[1-rate, rate])
+        #     for b in self.biases]
