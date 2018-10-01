@@ -60,7 +60,7 @@ def play(_snake):
     pygame.quit()
 
 
-snake = AutonomousSnake.load_snake("populations/pop{}/gen{}.pickle".format(sys.argv[1], sys.argv[2]))
+snake = AutonomousSnake.load_snake("src/populations/pop{}/gen{}.pickle".format(sys.argv[1], sys.argv[2]))
 # print(snake.moves_left)
 print(snake.velocity)
 play(snake)

@@ -205,5 +205,6 @@ class AutonomousSnake:
 
     def __copy__(self):
         snake_copy = AutonomousSnake()
+        snake_copy.base_max_moves = self.max_moves
         snake_copy.brain = copy.copy(self.brain)
         return snake_copy

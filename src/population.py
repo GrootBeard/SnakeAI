@@ -2,14 +2,16 @@ from snake import AutonomousSnake
 import copy
 import random
 import numpy as np
+import os
 
 
 class TrainingConfiguration:
 
-    def __init__(self, mutation_rate, mutation_magnitude, max_moves=100):
+    def __init__(self, mutation_rate, mutation_magnitude, max_moves=100, shuffle=False):
         self.max_moves = max_moves
         self.mutation_rate = mutation_rate
         self.mutation_magnitude = mutation_magnitude
+        self.shuffle = shuffle
 
 
 class Population:
@@ -21,20 +23,30 @@ class Population:
         self.training_config = training_config
 
         if not champion:
-            self.individuals = [AutonomousSnake() for i in range(self.population_size)]
+            self.individuals = [AutonomousSnake(base_max_moves=self.training_config.max_moves) for i in
+                                range(self.population_size)]
             self.all_time_champion = AutonomousSnake()
         else:
             self.individuals = [copy.copy(champion) for i in range(self.population_size - 1)]
             for individual in self.individuals:
                 individual.mutate(self.training_config.mutation_rate, self.training_config.mutation_magnitude)
+                individual.max_moves = self.training_config.max_moves
             self.individuals.append(champion)
             self.all_time_champion = champion
 
         self.top_generation = [self.all_time_champion]
         self.fitness_sum = 0
         self.generation = 0
+        try:
+            os.mkdir("populations/pop{}".format(self.pid))
+        except Exception as e:
+            print(e)
+        f = open("populations/pop{}/log.log".format(self.pid), "w")
+        f.write("Population {} history".format(self.pid))
+        f.close()
 
     def evolution(self):
+
         steps = 0
         live_individuals = np.arange(len(self.individuals))
         while len(live_individuals) > 0:
@@ -52,16 +64,20 @@ class Population:
 
         self.individuals.sort(key=lambda c: c.fitness)
         self.top_generation = self.individuals[-100:]
-        print("worst fitness: {}, best fitness: {}".format(self.individuals[0].fitness, self.individuals[-1].fitness))
+        # print("worst fitness: {}, best fitness: {}".format(self.individuals[0].fitness, self.individuals[-1].fitness))
 
         self.reproduction()
 
         self.all_time_champion.save(self.pid, self.generation)
-        print("Population {}: Generation {} done in {} steps. champion fitness: {}, total fitness: {}".format(self.pid,
-                                                                                                              self.generation,
-                                                                                                              steps,
-                                                                                                              self.all_time_champion.fitness,
-                                                                                                              self.fitness_sum))
+        log = "\n\nPopulation {}: Generation {} done in {} steps. champion fitness: {}, total fitness: {}".format(
+            self.pid,
+            self.generation,
+            steps,
+            self.all_time_champion.fitness,
+            self.fitness_sum)
+        print(log)
+        with open('populations/pop{}/log.log'.format(self.pid), 'a') as f:
+            f.write(log)
         self.generation += 1
 
     def reproduction(self):
@@ -86,7 +102,8 @@ class Population:
 
     def select_random_individual(self, individuals_pool):
         random_point = np.random.randint(0, self.fitness_sum)
-        # random.shuffle(individuals_pool)
+        if self.training_config.shuffle:
+            random.shuffle(individuals_pool)
 
         pointer = 0
         for individual in individuals_pool:
@@ -102,7 +119,16 @@ class Population:
             for other in others:
                 merged_population.extend(copy.deepcopy(other.top_generation))
         merged_population = merged_population[:self.population_size]
-        merged_population[0] = copy.copy(self.all_time_champion)
         for individual in merged_population:
             individual.mutate(self.training_config.mutation_rate, self.training_config.mutation_magnitude)
+        merged_population[0] = copy.copy(self.all_time_champion)
         self.individuals = merged_population
+
+    def reset_fitness(self):
+        for individual in self.individuals:
+            individual.fitness = 0
+
+    def update_config(self, config):
+        self.training_config = config
+        for individual in self.individuals:
+            individual.max_moves = self.training_config.max_moves
