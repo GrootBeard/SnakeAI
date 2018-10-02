@@ -9,4 +9,4 @@ __init__.py
 /generations
 *.pickle
 src/snake_tester.py
-
+*.log
