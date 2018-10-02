@@ -37,6 +37,8 @@ class Population:
         self.top_generation = [self.all_time_champion]
         self.fitness_sum = 0
         self.generation = 0
+
+        # TODO: make more elegant solution for not existing file
         try:
             os.mkdir("populations/pop{}".format(self.pid))
         except Exception as e:
@@ -69,6 +71,8 @@ class Population:
         self.reproduction()
 
         self.all_time_champion.save(self.pid, self.generation)
+
+        # TODO: Improve heuristics
         log = "Population {}: Generation {} done in {} steps. champion fitness: {}, total fitness: {}".format(
             self.pid,
             self.generation,
@@ -112,17 +116,27 @@ class Population:
                 return individual
         return self.all_time_champion
 
-    def introduce_from_outside(self, others):
-        merged_population = []
-        while len(merged_population) < self.population_size:
-            merged_population.extend(copy.deepcopy(self.top_generation))
-            for other in others:
-                merged_population.extend(copy.deepcopy(other.top_generation))
-        merged_population = merged_population[:self.population_size]
-        for individual in merged_population:
-            individual.mutate(self.training_config.mutation_rate, self.training_config.mutation_magnitude)
-        merged_population[0] = copy.copy(self.all_time_champion)
-        self.individuals = merged_population
+    def merge_populations(self, others):
+        seeds = []
+        seeds.extend(copy.deepcopy(self.top_generation))
+        for other in others:
+            seeds.extend(copy.deepcopy(other.top_generation))
+
+        new_population = []
+
+        for i in range(self.population_size):
+            # Select random individual from seeds
+            parent1 = seeds[np.random.choice(np.arange(0, len(seeds - 1)))]
+            parent2 = seeds[np.random.choice(np.arange(0, len(seeds - 1)))]
+
+            # Make new child from the two randomly selected individuals and mutate it
+            child = parent1.crossover_brain(parent2)
+            child.mutate(self.training_config.mutation_rate, self.training_config.mutation_magnitude)
+
+            # Add child to list
+            new_population.append(child)
+
+        self.individuals = new_population
 
     def reset_fitness(self):
         for individual in self.individuals:
@@ -131,5 +145,4 @@ class Population:
     def update_config(self, config):
         self.training_config = config
         for individual in self.individuals:
-            individual.max_moves = self.training_config.max_moves
-            individual.moves_left = self.training_config.max_moves
+            individual.set_training_config()
