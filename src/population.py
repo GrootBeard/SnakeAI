@@ -82,6 +82,7 @@ class Population:
         print(log)
         with open('populations/pop{}/log.log'.format(self.pid), 'a') as f:
             f.write(log)
+            f.write('\n')
         self.generation += 1
 
     def reproduction(self):
@@ -126,8 +127,8 @@ class Population:
 
         for i in range(self.population_size):
             # Select random individual from seeds
-            parent1 = seeds[np.random.choice(np.arange(0, len(seeds - 1)))]
-            parent2 = seeds[np.random.choice(np.arange(0, len(seeds - 1)))]
+            parent1 = seeds[np.random.choice(np.arange(0, len(seeds) - 1))]
+            parent2 = seeds[np.random.choice(np.arange(0, len(seeds) - 1))]
 
             # Make new child from the two randomly selected individuals and mutate it
             child = parent1.crossover_brain(parent2)
@@ -145,4 +146,4 @@ class Population:
     def update_config(self, config):
         self.training_config = config
         for individual in self.individuals:
-            individual.set_training_config()
+            individual.set_training_config(config)
