@@ -171,6 +171,10 @@ class AutonomousSnake:
             self.tail = np.append(self.tail, [self.position - i * self.velocity], axis=0)
         return self
 
+    def set_training_config(self, config):
+        self.max_moves = config.max_moves
+        self.moves_left = self.max_moves
+
     def save(self, population, generation):
         brain_data = {"sizes": self.brain.sizes,
                       "weights": self.brain.weights,
