@@ -42,7 +42,7 @@ class Population:
         except Exception as e:
             print(e)
         f = open("populations/pop{}/log.log".format(self.pid), "w")
-        f.write("Population {} history".format(self.pid))
+        f.write("Population {} history\n\n".format(self.pid))
         f.close()
 
     def evolution(self):
@@ -69,7 +69,7 @@ class Population:
         self.reproduction()
 
         self.all_time_champion.save(self.pid, self.generation)
-        log = "\n\nPopulation {}: Generation {} done in {} steps. champion fitness: {}, total fitness: {}".format(
+        log = "Population {}: Generation {} done in {} steps. champion fitness: {}, total fitness: {}".format(
             self.pid,
             self.generation,
             steps,
@@ -132,3 +132,4 @@ class Population:
         self.training_config = config
         for individual in self.individuals:
             individual.max_moves = self.training_config.max_moves
+            individual.moves_left = self.training_config.max_moves
